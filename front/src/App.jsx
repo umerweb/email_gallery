@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Gallery />} />
         <Route path="/import/mail/admin" element={<GmailPage />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/email/:id" element={<Emailtemp />} />
