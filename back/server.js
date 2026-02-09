@@ -26,6 +26,17 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
+// 🔥 TEST CONNECTION
+(async () => {
+  try {
+    const conn = await db.getConnection();
+    console.log("✅ MySQL Connected");
+    conn.release();
+  } catch (err) {
+    console.error("❌ MySQL CONNECTION FAILED:");
+    console.error(err);
+  }
+})();
 
 // ------------------------
 // Gmail config
