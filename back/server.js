@@ -26,17 +26,7 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
-// 🔥 TEST CONNECTION
-(async () => {
-  try {
-    const conn = await db.getConnection();
-    console.log("✅ MySQL Connected");
-    conn.release();
-  } catch (err) {
-    console.error("❌ MySQL CONNECTION FAILED:");
-    console.error(err);
-  }
-})();
+
 
 // ------------------------
 // Gmail config
@@ -75,6 +65,11 @@ function formatDateForMySQL(isoString) {
   const mi = String(d.getMinutes()).padStart(2, '0');
   const ss = String(d.getSeconds()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+function stripHrefUrls(html) {
+  if (!html) return '';
+  // Remove the href value but keep the <a> tag and its text
+  return html.replace(/<a [^>]*href="[^"]*"([^>]*)>/gi, '<a$1>');
 }
 
 // ------------------------
@@ -137,7 +132,7 @@ function parseGmailMessage(gmailData) {
     from_email: fromEmail,
     to_email: to,
     date: new Date(dateHeader).toISOString(),
-    html_body: htmlBody || `<html><body>${textBody}</body></html>`,
+    html_body: stripHrefUrls(htmlBody) || `<html><body>${textBody}</body></html>`,
     text_body: textBody,
     headers: headers.length > 0 ? headers : [], // ensure always an array
   };
@@ -275,7 +270,7 @@ app.get('/auth/callback', async (req, res) => {
 
   await saveTokens(userEmail, data.access_token, data.refresh_token, expiry);
 
-  res.redirect('http://localhost:5173'); 
+  res.redirect(fronturl); 
 });
 
 // Get logged-in user email
