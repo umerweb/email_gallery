@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // React Router
+import { useNavigate } from 'react-router-dom';
 
-const BACKEND_URL =  import.meta.env.VITE_BACKEND_URL;
-console.log(BACKEND_URL)
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+console.log(BACKEND_URL);
+
 export default function TemplatesPage() {
   const navigate = useNavigate();
 
@@ -65,109 +66,206 @@ export default function TemplatesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
 
       {/* Header */}
-      <div className="bg-white shadow-md px-8 py-5 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-2xl font-bold text-gray-800">Email Templates</h1>
-        <input
-          type="text"
-          placeholder="Search templates..."
-          className="w-96 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          value={filters.search}
-          onChange={(e) => updateFilter('search', e.target.value)}
-        />
+      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-8 py-6 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-[1800px] mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Email Templates
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">Browse and customize your email collection</p>
+          </div>
+          
+          <div className="relative">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search templates..."
+              className="w-96 pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
+              value={filters.search}
+              onChange={(e) => updateFilter('search', e.target.value)}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="flex">
+      <div className="flex max-w-[1800px] mx-auto">
 
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r min-h-screen p-6 space-y-6 shadow-sm">
-          <h2 className="font-semibold text-lg text-gray-700">Filters</h2>
-
-          <div>
-            <label className="text-sm text-gray-500">Brand</label>
-            <select
-              className="w-full border rounded p-2 mt-1 hover:border-indigo-400 focus:ring-1 focus:ring-indigo-500"
-              value={filters.brand}
-              onChange={(e) => updateFilter('brand', e.target.value)}
-            >
-              <option value="">All</option>
-              {options.brands.map(b => <option key={b}>{b}</option>)}
-            </select>
+        <aside className="w-72 bg-white/60 backdrop-blur-sm border-r border-gray-200/50 min-h-screen p-6 space-y-6">
+          <div className="flex items-center gap-2 mb-6">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h2 className="font-semibold text-lg text-gray-800">Filters</h2>
           </div>
 
-          <div>
-            <label className="text-sm text-gray-500">Language</label>
-            <select
-              className="w-full border rounded p-2 mt-1 hover:border-green-400 focus:ring-1 focus:ring-green-500"
-              value={filters.language}
-              onChange={(e) => updateFilter('language', e.target.value)}
-            >
-              <option value="">All</option>
-              {options.languages.map(l => <option key={l}>{l}</option>)}
-            </select>
+          <div className="space-y-4">
+            <div className="group">
+              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2 block">Brand</label>
+              <div className="relative">
+                <select
+                  className="w-full border border-gray-200 rounded-lg p-3 pr-10 appearance-none bg-white hover:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer"
+                  value={filters.brand}
+                  onChange={(e) => updateFilter('brand', e.target.value)}
+                >
+                  <option value="">All Brands</option>
+                  {options.brands.map(b => <option key={b}>{b}</option>)}
+                </select>
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            <div className="group">
+              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2 block">Language</label>
+              <div className="relative">
+                <select
+                  className="w-full border border-gray-200 rounded-lg p-3 pr-10 appearance-none bg-white hover:border-emerald-300 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
+                  value={filters.language}
+                  onChange={(e) => updateFilter('language', e.target.value)}
+                >
+                  <option value="">All Languages</option>
+                  {options.languages.map(l => <option key={l}>{l}</option>)}
+                </select>
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            <div className="group">
+              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2 block">Country</label>
+              <div className="relative">
+                <select
+                  className="w-full border border-gray-200 rounded-lg p-3 pr-10 appearance-none bg-white hover:border-amber-300 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all cursor-pointer"
+                  value={filters.country}
+                  onChange={(e) => updateFilter('country', e.target.value)}
+                >
+                  <option value="">All Countries</option>
+                  {options.countries.map(c => <option key={c}>{c}</option>)}
+                </select>
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm text-gray-500">Country</label>
-            <select
-              className="w-full border rounded p-2 mt-1 hover:border-amber-400 focus:ring-1 focus:ring-amber-500"
-              value={filters.country}
-              onChange={(e) => updateFilter('country', e.target.value)}
-            >
-              <option value="">All</option>
-              {options.countries.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
+          {/* Active Filters Count */}
+          {(filters.brand || filters.language || filters.country) && (
+            <div className="pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setFilters({ brand: '', language: '', country: '', search: filters.search });
+                  loadTemplates(1, { brand: '', language: '', country: '', search: filters.search });
+                }}
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Clear Filters
+              </button>
+            </div>
+          )}
         </aside>
 
         {/* Templates Grid */}
         <main className="flex-1 p-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {templates.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-96 text-gray-400">
+              <svg className="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-lg font-medium">No templates found</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {templates.map(t => (
+                <div
+                  key={t.id}
+                  onClick={() => openTemplate(t.id)}
+                  className="group cursor-pointer bg-white rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl hover:border-indigo-200 transform hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+                >
+                  <div className="h-36 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-white text-4xl font-bold drop-shadow-lg">
+                        {t.brand?.[0]?.toUpperCase() || 'T'}
+                      </span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                    
+                    {/* Hover Icon */}
+                    <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </div>
+                  </div>
 
-            {templates.map(t => (
-              <div
-                key={t.id}
-                onClick={() => openTemplate(t.id)}
-                className="cursor-pointer bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="h-32 rounded-t-xl flex items-center justify-center text-white text-2xl font-bold bg-gradient-to-br from-indigo-500 to-indigo-700 relative">
-                  {t.brand?.[0]?.toUpperCase() || 'T'}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl" />
-                </div>
+                  <div className="p-5">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                      {t.subject}
+                    </h3>
+                    <p className="text-sm text-gray-500 line-clamp-3 mb-4 leading-relaxed">
+                      {t.snippet}
+                    </p>
 
-                <div className="p-4">
-                  <h3 className="font-semibold mb-2 line-clamp-2 text-gray-800">{t.subject}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-3">{t.snippet}</p>
-
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    {t.brand && <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">{t.brand}</span>}
-                    {t.language && <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">{t.language}</span>}
-                    {t.country && <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-full">{t.country}</span>}
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {t.brand && (
+                        <span className="bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-medium border border-indigo-200/50">
+                          {t.brand}
+                        </span>
+                      )}
+                      {t.language && (
+                        <span className="bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-medium border border-emerald-200/50">
+                          {t.language}
+                        </span>
+                      )}
+                      {t.country && (
+                        <span className="bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-medium border border-amber-200/50">
+                          {t.country}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-10 flex-wrap items-center">
+            <div className="flex justify-center gap-2 mt-12 flex-wrap items-center">
               <button
                 onClick={() => page > 1 && loadTemplates(page - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 bg-white border rounded hover:bg-gray-200 disabled:opacity-40"
+                className="px-5 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-medium text-gray-700 shadow-sm"
               >
-                Prev
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Previous
+                </span>
               </button>
 
               {getPageNumbers().map(p => (
                 <button
                   key={p}
                   onClick={() => loadTemplates(p)}
-                  className={`px-4 py-2 border rounded ${
-                    p === page ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-gray-200'
+                  className={`px-4 py-2.5 rounded-lg font-medium transition-all shadow-sm ${
+                    p === page 
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-indigo-200 scale-110' 
+                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                   }`}
                 >
                   {p}
@@ -177,9 +275,14 @@ export default function TemplatesPage() {
               <button
                 onClick={() => page < totalPages && loadTemplates(page + 1)}
                 disabled={page === totalPages}
-                className="px-4 py-2 bg-white border rounded hover:bg-gray-200 disabled:opacity-40"
+                className="px-5 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-medium text-gray-700 shadow-sm"
               >
-                Next
+                <span className="flex items-center gap-2">
+                  Next
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
               </button>
             </div>
           )}
