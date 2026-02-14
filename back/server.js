@@ -3,6 +3,7 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { generateThumbnailsForEmails } = require('./thumbnals');
 
 const app = express();
 app.use(cors());
@@ -138,77 +139,70 @@ function parseGmailMessage(gmailData) {
   };
 }
 
-
-// Dummy brand/language/country detection
-function detectBrand(email) { return email.split('@')[1]?.split('.')[0] || 'Unknown'; }
 function detectLanguage(text) { return 'en'; }
-//async function detectCountry(headers) { return 'Unknown'; }
-const IPINFO_TOKEN = process.env.IPINFO_TOKEN;
-const countryCache = {}; // cache results to reduce API calls
-
-async function detectCountry(headers, fromEmail) {
-  // 1️⃣ Try TLD first (sender domain)
-  const domain = fromEmail.split('@')[1] || '';
-  const tld = domain.split('.').pop()?.toLowerCase();
-  const countryMap = { 
-    uk: 'United Kingdom', 
-    pk: 'Pakistan', 
-    de: 'Germany', 
-    fr: 'France', 
-    in: 'India', 
-    au: 'Australia', 
-    ca: 'Canada', 
-    us: 'United States' // add common TLDs
-  };
-  if (countryMap[tld]) return countryMap[tld];
-
-  // 2️⃣ Try Received headers for public IP
-  const receivedHeader = headers.find(h => h.name.toLowerCase() === 'received')?.value;
-  if (!receivedHeader) return 'Unknown';
-
-  const ipMatch = receivedHeader.match(/\b\d{1,3}(\.\d{1,3}){3}\b/);
-  if (!ipMatch) return 'Unknown';
-
-  const ip = ipMatch[0];
-
-  // Skip private/internal IPs
-  if (/^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1]))/.test(ip)) {
-    return 'Unknown';
-  }
-
-  // 3️⃣ Return from cache if already fetched
-  if (countryCache[ip]) return countryCache[ip];
-
-  // 4️⃣ Fetch from IPinfo Lite
+// Dummy brand/language/country detection
+// Dummy brand detection (NOW DB BACKED)
+async function detectBrand(email) {
   try {
-    const res = await fetch(`https://ipinfo.io/lite/${ip}?token=${IPINFO_TOKEN}`);
-    if (!res.ok) {
-      // 404 is expected for many Gmail/Outlook IPs
-      if (res.status !== 404) console.warn(`IPinfo API returned status ${res.status} for IP ${ip}`);
-      countryCache[ip] = 'Unknown';
-      return 'Unknown';
+    if (!email) return 'Unknown';
+
+    let domain = email.split('@')[1]?.toLowerCase();
+    if (!domain) return 'Unknown';
+
+    // Normalize subdomains -> root domain
+    const parts = domain.split('.');
+    if (parts.length > 2) {
+      domain = parts.slice(-2).join('.');
     }
 
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (err) {
-      console.warn(`IPinfo response not JSON for IP ${ip}: ${text}`);
-      countryCache[ip] = 'Unknown';
-      return 'Unknown';
+    const [rows] = await db.query(
+      'SELECT name FROM brands WHERE domain=? LIMIT 1',
+      [domain]
+    );
+
+    if (rows.length) {
+      return rows[0].name;
     }
 
-    const country = data.country || 'Unknown';
-    countryCache[ip] = country; // cache result
-    return country;
   } catch (err) {
-    console.error(`Error fetching country from IPinfo for IP ${ip}:`, err);
-    countryCache[ip] = 'Unknown';
+    console.error('detectBrand DB error:', err);
   }
 
   return 'Unknown';
 }
+
+
+// DB-only country detection
+async function detectCountry(headers, fromEmail) {
+  try {
+    if (!fromEmail) return 'Unknown';
+
+    let domain = fromEmail.split('@')[1]?.toLowerCase();
+    if (!domain) return 'Unknown';
+
+    // Normalize subdomains → root domain
+    const parts = domain.split('.');
+    if (parts.length > 2) {
+      domain = parts.slice(-2).join('.');
+    }
+
+    const [rows] = await db.query(
+      'SELECT countryt FROM brands WHERE domain=? LIMIT 1',
+      [domain]
+    );
+
+    if (rows.length && rows[0].country) {
+      return rows[0].country;
+    }
+
+  } catch (err) {
+    console.error('detectCountry DB lookup error:', err);
+  }
+
+  return 'Unknown';
+}
+
+
 
 
 
@@ -387,9 +381,9 @@ app.get('/messages/import', async (req, res) => {
       const htmlBody = parsed.html_body || `<html><body>${parsed.text_body || ''}</body></html>`;
       const textBody = parsed.text_body || '';
       const date = formatDateForMySQL(parsed.date || new Date().toISOString());
-      const brandGuess = detectBrand(senderEmail);
+      const brandGuess = await detectBrand(senderEmail);
       const languageGuess = detectLanguage(textBody);
-      const countryGuess = parsed.headers ? await detectCountry(parsed.headers, senderEmail) : 'Unknown';
+      const countryGuess = await detectCountry(parsed.headers, senderEmail);
       const snippet = msgData.snippet || textBody.substring(0, 300);
 
       await db.query(
@@ -430,6 +424,9 @@ app.get('/messages/import', async (req, res) => {
     console.log(`Imported ${messages.length} new emails for user ${userEmail}`);
     res.json({ imported: messages.length, emails: messages });
 
+    // Trigger thumbnail generation in background
+    generateThumbnailsForEmails(db).catch(err => console.error('Thumbnail process failed:', err));
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error while importing emails');
@@ -442,7 +439,7 @@ app.get('/messages/import', async (req, res) => {
 app.get('/templates', async (req, res) => {
   try {
     let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || 12;
+    let limit = parseInt(req.query.limit) || 15;
 
     if (limit > 50) limit = 50;
     if (page < 1) page = 1;
@@ -488,24 +485,29 @@ app.get('/templates', async (req, res) => {
 
     // ---------- Fetch Templates ----------
     const [rows] = await db.query(
-      `
-      SELECT
-        id,
-        subject,
-        sender_name,
-        sender_email,
-        snippet,
-        brand,
-        language,
-        country,
-        sent_at
-      FROM emails
-      ${whereSQL}
-      ORDER BY sent_at DESC
-      LIMIT ? OFFSET ?
-      `,
-      [...params, limit, offset]
+    `
+    SELECT
+      e.id,
+      e.subject,
+      e.sender_name,
+      e.sender_email,
+      e.snippet,
+      e.brand,
+      b.image_url AS brand_image,  -- fetch brand image from brands table
+      e.language,
+      e.country,
+      e.thumbnail_path,
+      e.sent_at
+    FROM emails e
+    LEFT JOIN brands b
+      ON LOWER(e.brand) = LOWER(b.name)
+    ${whereSQL}
+    ORDER BY e.sent_at DESC
+    LIMIT ? OFFSET ?
+    `,
+    [...params, limit, offset]
     );
+
 
     res.json({
       templates: rows,

@@ -179,67 +179,84 @@ export default function TemplatesPage() {
         {/* Templates Grid */}
         <main className="flex-1 p-8">
           {templates.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-96 text-gray-400">
-              <svg className="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
-              <p className="text-lg font-medium">No templates found</p>
-            </div>
+           <div className="flex flex-col items-center justify-center h-96 text-gray-400">
+  <svg
+    className="w-20 h-20 mb-4 animate-spin text-indigo-500"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+    ></path>
+  </svg>
+  <p className="text-lg font-medium">Templates Loading...</p>
+</div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {templates.map(t => (
-                <div
-                  key={t.id}
-                  onClick={() => openTemplate(t.id)}
-                  className="group cursor-pointer bg-white rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl hover:border-indigo-200 transform hover:-translate-y-2 transition-all duration-300 overflow-hidden"
-                >
-                  <div className="h-36 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-white text-4xl font-bold drop-shadow-lg">
-                        {t.brand?.[0]?.toUpperCase() || 'T'}
-                      </span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                    
-                    {/* Hover Icon */}
-                    <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-                      {t.subject}
-                    </h3>
-                    <p className="text-sm text-gray-500 line-clamp-3 mb-4 leading-relaxed">
-                      {t.snippet}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      {t.brand && (
-                        <span className="bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-medium border border-indigo-200/50">
-                          {t.brand}
-                        </span>
-                      )}
-                      {t.language && (
-                        <span className="bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-medium border border-emerald-200/50">
-                          {t.language}
-                        </span>
-                      )}
-                      {t.country && (
-                        <span className="bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-medium border border-amber-200/50">
-                          {t.country}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <div className="flex flex-wrap gap-6 justify-between">
+  {templates.map((t) => {
+    const brandInitial = t.brand ? t.brand.charAt(0).toUpperCase() : '?';
+    return (
+      <div
+        key={`${t.id}`}  
+        onClick={() => openTemplate(t.id)}
+        className="group cursor-pointer bg-white rounded-lg border border-gray-200/60 shadow-sm hover:shadow-xl hover:border-indigo-200 transform hover:-translate-y-2 transition-all duration-300 overflow-hidden w-[270px]"
+      >
+        {/* Brand header */}
+        <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 bg-gray-50">
+          {t.brand_image ? (
+            <img
+              src={t.brand_image}
+              alt={t.brand}
+              className="w-10 h-10 rounded-full object-cover border border-gray-300"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-semibold text-lg">
+              {brandInitial}
             </div>
+          )}
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-800">{t.brand || 'Unknown Brand'}</span>
+            <span className="text-xs text-gray-500">
+              {t.country || 'Unknown'} • {new Date(t.sent_at).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Thumbnail */}
+        <div className="relative w-[270px] h-[333px] overflow-hidden">
+          <img
+            src={`data:image/png;base64,${t.thumbnail_path}`}
+            alt={t.subject}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Subject & snippet */}
+        <div className="p-4 w-[100%]">
+          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+            {t.subject}
+          </h3>
+          <p className="text-sm text-gray-500 line-clamp-2 mb-4 leading-relaxed">
+            {t.snippet}
+          </p>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+
           )}
 
           {/* Pagination */}

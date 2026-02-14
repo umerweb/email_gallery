@@ -1,0 +1,11 @@
+Amazon	amazon.com	US
+Alibaba	alibaba.com	CN
+Best Buy	bestbuy.com	US
+IKEA	ikea.com	SE
+Wayfair	wayfair.com	US
+Newegg	newegg.com	US
+Zalando	zalando.com	DE
+Flipkart	flipkart.com	IN
+ASOS	asos.com	UK
+Boohoo	boohoo.com	UK
+Boozt	boozt.com	DK
