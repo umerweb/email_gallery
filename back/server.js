@@ -4,24 +4,22 @@ const mysql = require('mysql2/promise');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { generateThumbnailsForEmails } = require('./thumbnals');
-const fronturl = process.env.FRONT_URL;
+
 const app = express();
+const fronturl = process.env.FRONT_URL;
 
-
-const corsOptions = {
+app.use(cors({
   origin: fronturl,
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  methods: ["GET","POST","PUT","DELETE"],
   credentials: true
-};
+}));
 
-// Apply CORS globally (this also handles preflight automatically)
-app.use(cors(corsOptions));
 
-// Body parsers
+app.use(cors());
+console.log(fronturl)
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-console.log("CORS allowed origin:", fronturl);
+
 
 
 // ------------------------
