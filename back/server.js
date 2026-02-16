@@ -14,14 +14,12 @@ const corsOptions = {
   credentials: true
 };
 
-// ⭐ Apply CORS
+// Apply CORS globally (this also handles preflight automatically)
 app.use(cors(corsOptions));
 
-// ⭐ Handle preflight
-app.options('*', cors(corsOptions));
-
-// ⭐ JSON parser
-app.use(express.json());
+// Body parsers
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 console.log("CORS allowed origin:", fronturl);
 
