@@ -6,16 +6,17 @@ const bodyParser = require('body-parser');
 const { generateThumbnailsForEmails } = require('./thumbnals');
 
 const app = express();
-app.use(cors());
+const fronturl = process.env.FRONT_URL;
+
+app.use(cors({
+  origin: fronturl,
+  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true
+}));
+console.log(fronturl)
 app.use(bodyParser.json());
 
-const fronturl = process.env.FRONT_URL;
-// Configure CORS to allow only your frontend
-// app.use(cors({
-//   origin: fronturl,
-//   methods: ["GET", "POST", "PUT", "DELETE"], 
-//   credentials: true 
-// }));
+
 
 
 // ------------------------
@@ -187,7 +188,7 @@ async function detectCountry(headers, fromEmail) {
     }
 
     const [rows] = await db.query(
-      'SELECT countryt FROM brands WHERE domain=? LIMIT 1',
+      'SELECT countryt AS country FROM brands WHERE domain=? LIMIT 1',
       [domain]
     );
 
